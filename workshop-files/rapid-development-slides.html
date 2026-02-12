@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rapid Development with React</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg: #1a1a2e;
+      --surface: #16213e;
+      --surface-dark: #0f3460;
+      --cyan: #00d4ff;
+      --pink: #e94560;
+      --text: #f0f0f0;
+      --muted: #a0a0a0;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+    
+    .slide {
+      width: 100vw;
+      height: 100vh;
+      display: none;
+      flex-direction: column;
+      padding: 40px 60px;
+    }
+    
+    .slide.active { display: flex; }
+    
+    h1 {
+      font-size: 2.5rem;
+      color: var(--cyan);
+      border-bottom: 3px solid var(--cyan);
+      padding-bottom: 12px;
+      margin-bottom: 30px;
+    }
+    
+    h1.pink { color: var(--pink); border-color: var(--pink); }
+    
+    .content { flex: 1; display: flex; gap: 40px; }
+    .col { display: flex; flex-direction: column; gap: 16px; }
+    .row { display: flex; gap: 20px; flex-wrap: wrap; }
+    
+    .card {
+      background: var(--surface);
+      border-radius: 8px;
+      padding: 20px;
+      border-left: 4px solid var(--cyan);
+    }
+    
+    .card.pink { border-left-color: var(--pink); }
+    .card h3 { color: var(--cyan); margin-bottom: 8px; font-size: 1.1rem; }
+    .card.pink h3 { color: var(--pink); }
+    .card p { color: var(--text); font-size: 0.95rem; }
+    .card code { color: var(--muted); font-size: 0.8rem; font-family: monospace; }
+    
+    .big-number {
+      background: linear-gradient(180deg, var(--surface) 0%, var(--surface-dark) 100%);
+      border-radius: 12px;
+      padding: 30px;
+      text-align: center;
+      width: 280px;
+    }
+    
+    .big-number .num { font-size: 5rem; font-weight: bold; color: var(--pink); line-height: 1; }
+    .big-number .label { font-size: 1.3rem; color: var(--text); letter-spacing: 2px; margin-top: 8px; }
+    
+    .point {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    
+    .point .icon {
+      width: 32px;
+      height: 32px;
+      background: var(--pink);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+    
+    .point .icon.cyan { background: var(--cyan); color: var(--bg); }
+    .point .icon.round { border-radius: 50%; }
+    
+    .point h4 { color: var(--text); font-size: 1rem; margin-bottom: 4px; }
+    .point.cyan h4 { color: var(--cyan); }
+    .point p { color: var(--muted); font-size: 0.9rem; }
+    
+    .code-block {
+      background: var(--surface-dark);
+      border-radius: 8px;
+      padding: 20px;
+      font-family: 'Consolas', monospace;
+      font-size: 0.85rem;
+    }
+    
+    .code-block .comment { color: var(--muted); }
+    .code-block .keyword { color: var(--cyan); }
+    .code-block .string { color: var(--pink); }
+    
+    .highlight {
+      background: linear-gradient(90deg, rgba(0,212,255,0.15) 0%, transparent 100%);
+      border-left: 4px solid var(--cyan);
+      padding: 12px 16px;
+    }
+    
+    .highlight h4 { color: var(--cyan); font-size: 0.9rem; margin-bottom: 4px; }
+    .highlight p { color: var(--text); font-size: 0.95rem; }
+    
+    .trap-card {
+      background: var(--surface);
+      padding: 16px;
+      border-radius: 4px;
+      border-top: 3px solid var(--pink);
+      width: 280px;
+    }
+    
+    .trap-card h4 { color: var(--pink); margin-bottom: 8px; }
+    .trap-card .quote { color: var(--text); font-size: 0.9rem; }
+    .trap-card .sub { color: var(--muted); font-size: 0.8rem; margin-top: 4px; }
+    .trap-card .fix {
+      background: rgba(0,212,255,0.15);
+      padding: 6px 10px;
+      margin-top: 10px;
+      border-radius: 4px;
+      color: var(--cyan);
+      font-size: 0.75rem;
+    }
+    
+    .resource {
+      background: var(--surface-dark);
+      padding: 12px 16px;
+      border-radius: 4px;
+      border-left: 3px solid var(--cyan);
+    }
+    
+    .resource.pink { border-left-color: var(--pink); }
+    .resource h4 { color: var(--cyan); font-size: 1rem; }
+    .resource.pink h4 { color: var(--pink); }
+    .resource p { color: var(--text); font-size: 0.85rem; margin-top: 4px; }
+    .resource code { color: var(--muted); font-size: 0.75rem; }
+    
+    .quote-box {
+      background: linear-gradient(180deg, var(--surface) 0%, var(--surface-dark) 100%);
+      border-radius: 12px;
+      padding: 30px;
+      width: 300px;
+    }
+    
+    .quote-box blockquote {
+      color: var(--cyan);
+      font-size: 1.6rem;
+      font-weight: bold;
+      line-height: 1.3;
+    }
+    
+    .quote-box .divider {
+      width: 40px;
+      height: 3px;
+      background: var(--pink);
+      margin: 16px 0;
+    }
+    
+    .quote-box p { color: var(--muted); font-size: 0.9rem; }
+    
+    /* Title slide */
+    .title-slide {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    
+    .title-slide h1 {
+      font-size: 3.5rem;
+      border: none;
+      padding: 0;
+      margin: 0;
+      border-left: 6px solid var(--cyan);
+      padding-left: 24px;
+      text-align: left;
+    }
+    
+    .title-slide h2 {
+      font-size: 1.8rem;
+      color: var(--text);
+      font-weight: 400;
+      letter-spacing: 4px;
+      margin-top: 8px;
+    }
+    
+    .title-slide .subtitle {
+      color: var(--muted);
+      font-size: 1.2rem;
+      margin-top: 30px;
+    }
+    
+    .title-slide .badges {
+      display: flex;
+      gap: 16px;
+      margin-top: 40px;
+    }
+    
+    .badge {
+      padding: 10px 24px;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+    
+    .badge.cyan { background: var(--cyan); color: var(--bg); }
+    .badge.pink { border: 2px solid var(--pink); color: var(--pink); }
+    
+    /* Challenge slide */
+    .challenge-slide {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    
+    .challenge-slide .gradient-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 8px;
+      background: linear-gradient(90deg, var(--cyan), var(--pink));
+    }
+    
+    .challenge-slide .tag {
+      background: var(--pink);
+      padding: 10px 28px;
+      color: white;
+      font-weight: bold;
+      letter-spacing: 2px;
+      border-radius: 4px;
+    }
+    
+    .challenge-slide h1 {
+      font-size: 3.5rem;
+      border: none;
+      margin: 20px 0;
+    }
+    
+    .challenge-slide .subtitle { color: var(--text); font-size: 1.3rem; }
+    
+    .stat-boxes {
+      display: flex;
+      gap: 24px;
+      margin-top: 30px;
+    }
+    
+    .stat-box {
+      background: var(--surface);
+      padding: 20px 30px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    
+    .stat-box .num { font-size: 2rem; font-weight: bold; }
+    .stat-box .num.cyan { color: var(--cyan); }
+    .stat-box .num.pink { color: var(--pink); }
+    .stat-box .label { color: var(--muted); font-size: 0.75rem; margin-top: 4px; }
+    
+    .dashed-box {
+      border: 2px dashed var(--cyan);
+      padding: 16px 32px;
+      border-radius: 8px;
+      margin-top: 30px;
+      color: var(--cyan);
+    }
+    
+    /* Navigation */
+    .nav {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      gap: 10px;
+      z-index: 100;
+    }
+    
+    .nav button {
+      background: var(--surface);
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    
+    .nav button:hover { background: var(--cyan); color: var(--bg); }
+    
+    .slide-counter {
+      position: fixed;
+      bottom: 25px;
+      left: 30px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    
+    .footer {
+      position: absolute;
+      bottom: 20px;
+      left: 60px;
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Slide 1: Title -->
+<div class="slide title-slide active">
+  <div>
+    <h1>RAPID DEVELOPMENT</h1>
+    <h2>WITH REACT</h2>
+  </div>
+  <p class="subtitle">Ship Features Fast</p>
+  <div class="badges">
+    <span class="badge cyan">WORKSHOP</span>
+    <span class="badge pink">60 MIN</span>
+  </div>
+</div>
+
+<!-- Slide 2: Why Speed Matters -->
+<div class="slide">
+  <h1>WHY SPEED MATTERS</h1>
+  <div class="content">
+    <div class="big-number">
+      <div class="num">10x</div>
+      <div class="label">FASTER ITERATION</div>
+      <div style="width: 60px; height: 4px; background: var(--cyan); margin: 20px auto;"></div>
+      <p style="color: var(--muted); font-size: 0.9rem;">The difference between good teams and great ones</p>
+    </div>
+    <div class="col" style="flex: 1; justify-content: center;">
+      <div class="point">
+        <div class="icon">→</div>
+        <div><h4>Faster Feedback Loops</h4><p>Ship early, learn from users, iterate quickly</p></div>
+      </div>
+      <div class="point">
+        <div class="icon">→</div>
+        <div><h4>Reduced Time to Market</h4><p>Beat competitors by delivering value sooner</p></div>
+      </div>
+      <div class="point">
+        <div class="icon">→</div>
+        <div><h4>Lower Development Costs</h4><p>Less time = less money spent on features</p></div>
+      </div>
+      <div class="point cyan">
+        <div class="icon cyan">✓</div>
+        <div><h4>More Time for What Matters</h4><p>Focus on solving real problems, not fighting tools</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">Rapid Development with React</div>
+</div>
+
+<!-- Slide 3: The Speed Stack -->
+<div class="slide">
+  <h1>THE MODERN STACK</h1>
+  <p style="color: var(--muted); margin-bottom: 20px;">Tools optimized for developer velocity</p>
+  <div class="row">
+    <div class="card" style="width: 280px;">
+      <h3>Vite</h3>
+      <p>Instant dev server, fast HMR. Zero config.</p>
+      <code>npm create vite@latest</code>
+    </div>
+    <div class="card" style="width: 280px;">
+      <h3>Tailwind CSS</h3>
+      <p>Utility-first styling. No CSS files to manage.</p>
+      <code>className="flex gap-4 p-2"</code>
+    </div>
+    <div class="card" style="width: 280px;">
+      <h3>shadcn/ui</h3>
+      <p>Copy-paste components. Own your code.</p>
+      <code>npx shadcn@latest add button</code>
+    </div>
+    <div class="card pink" style="width: 280px;">
+      <h3>Lucide Icons</h3>
+      <p>1000+ icons. Tree-shakeable.</p>
+      <code>&lt;Search className="w-4" /&gt;</code>
+    </div>
+    <div class="card pink" style="width: 280px;">
+      <h3>React Hook Form</h3>
+      <p>Forms without the boilerplate pain.</p>
+      <code>const { register } = useForm()</code>
+    </div>
+    <div class="card pink" style="width: 280px;">
+      <h3>Zustand</h3>
+      <p>State management in 5 lines. No Redux.</p>
+      <code>const useStore = create(...)</code>
+    </div>
+  </div>
+  <div class="footer">Rapid Development with React</div>
+</div>
+
+<!-- Slide 4: Think in Components First -->
+<div class="slide">
+  <h1>THINK IN COMPONENTS FIRST</h1>
+  <div class="content">
+    <div class="col" style="width: 400px;">
+      <div style="background: rgba(233,69,96,0.2); border: 2px solid var(--pink); padding: 12px 16px; border-radius: 4px;">
+        <span style="color: var(--pink); font-weight: bold;">✗ DON'T: Dive into code immediately</span>
+      </div>
+      <div class="code-block">
+        <div class="comment">// 2 hours later...</div>
+        <div>"Wait, how does this component talk to that one?"</div>
+        <div class="string">// Refactoring everything...</div>
+      </div>
+      <div style="background: rgba(0,212,255,0.2); border: 2px solid var(--cyan); padding: 12px 16px; border-radius: 4px;">
+        <span style="color: var(--cyan); font-weight: bold;">✓ DO: Sketch the component tree</span>
+      </div>
+      <div class="code-block">
+        <div class="comment">5 minutes of planning saves hours:</div>
+        <ul style="margin-left: 20px; margin-top: 8px; color: var(--text);">
+          <li>What are the main views?</li>
+          <li>What data does each need?</li>
+          <li>Where does state live?</li>
+        </ul>
+      </div>
+    </div>
+    <div style="background: var(--surface-dark); border-radius: 12px; padding: 24px; flex: 1;">
+      <p style="color: var(--cyan); font-size: 0.8rem; letter-spacing: 2px; font-weight: bold; margin-bottom: 16px;">EXAMPLE: DASHBOARD</p>
+      <div class="code-block" style="background: var(--bg);">
+        <div><span class="keyword">&lt;App&gt;</span> <span class="comment">// routes, auth</span></div>
+        <div style="margin-left: 20px;"><span class="string">&lt;Layout&gt;</span> <span class="comment">// nav, sidebar</span></div>
+        <div style="margin-left: 40px;">&lt;Dashboard&gt; <span class="comment">// data fetching</span></div>
+        <div style="margin-left: 60px;">&lt;StatsGrid&gt;</div>
+        <div style="margin-left: 60px;">&lt;RecentActivity&gt;</div>
+        <div style="margin-left: 60px;">&lt;QuickActions&gt;</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">Rapid Development with React</div>
+</div>
+
+<!-- Slide 5: The Skeleton Strategy -->
+<div class="slide">
+  <h1>THE SKELETON STRATEGY</h1>
+  <p style="color: var(--text); margin-bottom: 20px;">Build the structure first, then fill in the details.</p>
+  <div class="row" style="gap: 30px;">
+    <div class="col" style="width: 280px;">
+      <div class="point"><div class="icon cyan round">1</div><h4 style="color: var(--cyan);">Empty Components</h4></div>
+      <div class="code-block">
+        <div class="comment">// Dashboard.jsx</div>
+        <div><span class="keyword">export function</span> Dashboard() {</div>
+        <div>  <span class="keyword">return</span> <span class="string">&lt;div&gt;Dashboard&lt;/div&gt;</span></div>
+        <div>}</div>
+      </div>
+      <p style="color: var(--muted); font-size: 0.85rem;">Just placeholders. Ships in minutes.</p>
+    </div>
+    <div class="col" style="width: 280px;">
+      <div class="point"><div class="icon cyan round">2</div><h4 style="color: var(--cyan);">Hardcoded Data</h4></div>
+      <div class="code-block">
+        <div class="comment">// Mock it first</div>
+        <div><span class="keyword">const</span> stats = [</div>
+        <div>  { label: <span class="string">'Users'</span>, value: 1234 },</div>
+        <div>  { label: <span class="string">'Revenue'</span>, value: 5678 },</div>
+        <div>]</div>
+      </div>
+      <p style="color: var(--muted); font-size: 0.85rem;">Real-looking UI without backend.</p>
+    </div>
+    <div class="col" style="width: 280px;">
+      <div class="point"><div class="icon round" style="background: var(--pink);">3</div><h4 style="color: var(--pink);">Wire It Up</h4></div>
+      <div class="code-block">
+        <div class="comment">// Connect to real data</div>
+        <div><span class="keyword">const</span> { data } = useQuery(</div>
+        <div>  <span class="string">'stats'</span>, fetchStats</div>
+        <div>)</div>
+      </div>
+      <p style="color: var(--muted); font-size: 0.85rem;">Incrementally add real logic.</p>
+    </div>
+  </div>
+  <div class="highlight" style="margin-top: 30px;">
+    <h4>KEY INSIGHT</h4>
+    <p>You can demo a skeleton. You can't demo broken code. Get something working first, then improve it.</p>
+  </div>
+  <div class="footer">Rapid Development with React</div>
+</div>
+
+<!-- Slide 6: State Management Shortcuts -->
+<div class="slide">
+  <h1>STATE MANAGEMENT SHORTCUTS</h1>
+  <div class="content">
+    <div class="col" style="width: 320px;">
+      <p style="color: var(--muted); margin-bottom: 10px;">Choose the simplest option that works:</p>
+      <div class="card"><h3>Level 1: useState</h3><p>Single component state. Start here.</p><p style="color: var(--muted); font-size: 0.8rem; margin-top: 4px;">Handles 80% of use cases.</p></div>
+      <div class="card"><h3>Level 2: Lift State Up</h3><p>Share between siblings via parent.</p><p style="color: var(--muted); font-size: 0.8rem; margin-top: 4px;">Props down, callbacks up.</p></div>
+      <div class="card pink"><h3>Level 3: Context + useReducer</h3><p>App-wide state without libraries.</p><p style="color: var(--muted); font-size: 0.8rem; margin-top: 4px;">Only when prop drilling hurts.</p></div>
+      <div class="card" style="opacity: 0.6; border-left-color: var(--muted);"><h3 style="color: var(--muted);">Level 4: Zustand / Redux</h3><p>Complex apps with many stores.</p><p style="color: var(--muted); font-size: 0.8rem; margin-top: 4px;">Large teams, complex requirements.</p></div>
+    </div>
+    <div class="col" style="flex: 1;">
+      <p style="color: var(--cyan); font-size: 0.85rem; letter-spacing: 1px; font-weight: bold;">PATTERN: LIFT STATE UP</p>
+      <div class="code-block" style="flex: 1;">
+        <div class="comment">// Parent owns the state</div>
+        <div><span class="keyword">function</span> App() {</div>
+        <div>  <span class="keyword">const</span> [items, setItems] = useState([])</div>
+        <div></div>
+        <div>  <span class="keyword">return</span> (</div>
+        <div>    &lt;&gt;</div>
+        <div>      <span class="string">&lt;AddItem onAdd={item =&gt;</span></div>
+        <div>        <span class="string">setItems([...items, item])}/&gt;</span></div>
+        <div>      <span class="string">&lt;ItemList items={items}/&gt;</span></div>
+        <div>    &lt;/&gt;</div>
+        <div>  )</div>
+        <div>}</div>
+      </div>
+      <div style="background: rgba(233,69,96,0.2); border: 1px solid var(--pink); padding: 12px; border-radius: 4px;">
+        <h4 style="color: var(--pink); font-size: 0.9rem;">⚠️ GOLDEN RULE</h4>
+        <p style="font-size: 0.85rem; margin-top: 4px;">If you're reaching for complex state management early, you might be overengineering. Start simple.</p>
+      </div>
+    </div>
+  </div>
+  <div class="footer">Rapid Development with React</div>
+</div>
+
+<!-- Slide 7: Time Trap Gallery -->
+<div class="slide">
+  <h1 class="pink">COMMON TIME TRAPS</h1>
+  <p style="color: var(--muted); margin-bottom: 20px;">Patterns that slow you down:</p>
+  <div class="row">
+    <div class="trap-card">
+      <h4>🎨 Premature Styling</h4>
+      <p class="quote">"Just need to fix this padding..."</p>
+      <p class="sub">Hours lost on pixels before logic works</p>
+      <div class="fix">FIX: Functionality first, polish later.</div>
+    </div>
+    <div class="trap-card">
+      <h4>🔧 Building from Scratch</h4>
+      <p class="quote">"I'll build my own modal..."</p>
+      <p class="sub">Accessibility? Focus traps? Edge cases?</p>
+      <div class="fix">FIX: Use shadcn/ui, Radix, Headless UI.</div>
+    </div>
+    <div class="trap-card">
+      <h4>📊 Over-Architecting State</h4>
+      <p class="quote">"Let me set up Redux properly..."</p>
+      <p class="sub">Actions, reducers, selectors, middleware</p>
+      <div class="fix">FIX: useState solves most problems.</div>
+    </div>
+    <div class="trap-card">
+      <h4>⚡ Premature Optimization</h4>
+      <p class="quote">"This might be slow with 10k items..."</p>
+      <p class="sub">You have 10 items. Optimize when needed.</p>
+      <div class="fix">FIX: Make it work, then make it fast.</div>
+    </div>
+    <div class="trap-card">
+      <h4>🔐 Custom Auth</h4>
+      <p class="quote">"Just need JWT + refresh tokens..."</p>
+      <p class="sub">Security is hard. Really hard.</p>
+      <div class="fix">FIX: Clerk, Auth0, Supabase Auth.</div>
+    </div>
+    <div class="trap-card">
+      <h4>📁 Perfect Project Structure</h4>
+      <p class="quote">"features/dashboard/components/ui..."</p>
+      <p class="sub">You have 4 components total.</p>
+      <div class="fix">FIX: Flat structure. Organize as you grow.</div>
+    </div>
+  </div>
+  <div class="footer">Rapid Development with React</div>
+</div>
+
+<!-- Slide 8: Mock Everything -->
+<div class="slide">
+  <h1>MOCK FIRST, INTEGRATE LATER</h1>
+  <div class="content">
+    <div class="col" style="width: 400px;">
+      <p>Don't wait for the backend. Mock data lets you build and test the UI in parallel with API development.</p>
+      <div class="code-block">
+        <div style="color: var(--cyan); font-weight: bold; margin-bottom: 8px;">Mock Data Pattern</div>
+        <div class="comment">// data/mockUsers.js</div>
+        <div><span class="keyword">export const</span> users = [</div>
+        <div>  { id: 1, name: <span class="string">'Alex'</span>, role: <span class="string">'Admin'</span> },</div>
+        <div>  { id: 2, name: <span class="string">'Sam'</span>, role: <span class="string">'User'</span> },</div>
+        <div>]</div>
+      </div>
+      <div class="code-block">
+        <div style="color: var(--pink); font-weight: bold; margin-bottom: 8px;">Fake API Pattern</div>
+        <div class="comment">// Simulate network delay</div>
+        <div><span class="keyword">const</span> api = {</div>
+        <div>  getUsers: () =&gt;</div>
+        <div>    <span class="keyword">new</span> Promise(r =&gt;</div>
+        <div>      setTimeout(() =&gt; r(users), 300))</div>
+        <div>}</div>
+      </div>
+    </div>
+    <div class="col" style="flex: 1;">
+      <p style="color: var(--cyan); font-size: 0.85rem; letter-spacing: 1px; font-weight: bold;">USEFUL RESOURCES</p>
+      <div class="resource"><h4>JSONPlaceholder</h4><p>Free fake REST API</p><code>jsonplaceholder.typicode.com</code></div>
+      <div class="resource"><h4>Faker.js</h4><p>Generate realistic fake data</p><code>faker.person.fullName()</code></div>
+      <div class="resource"><h4>MSW (Mock Service Worker)</h4><p>API mocking at the network level</p><code>mswjs.io</code></div>
+      <div class="resource pink"><h4>Picsum Photos</h4><p>Random placeholder images</p><code>picsum.photos/200/300</code></div>
+    </div>
+  </div>
+  <div class="footer">Rapid Development with React</div>
+</div>
+
+<!-- Slide 9: Component Library Power -->
+<div class="slide">
+  <h1>LEVERAGE COMPONENT LIBRARIES</h1>
+  <p style="margin-bottom: 20px;">Professional UI in minutes with the right tools:</p>
+  <div class="content">
+    <div class="code-block" style="width: 500px;">
+      <div class="comment">// Complete card component</div>
+      <div>&lt;Card className=<span class="string">"w-80"</span>&gt;</div>
+      <div>  &lt;CardHeader&gt;</div>
+      <div>    &lt;CardTitle&gt;Quick Setup&lt;/CardTitle&gt;</div>
+      <div>    &lt;CardDescription&gt;</div>
+      <div>      Built in 5 minutes</div>
+      <div>    &lt;/CardDescription&gt;</div>
+      <div>  &lt;/CardHeader&gt;</div>
+      <div>  &lt;CardContent&gt;</div>
+      <div>    &lt;Input placeholder=<span class="string">"Email"</span> /&gt;</div>
+      <div>  &lt;/CardContent&gt;</div>
+      <div>  &lt;CardFooter&gt;</div>
+      <div>    &lt;Button&gt;Subscribe&lt;/Button&gt;</div>
+      <div>  &lt;/CardFooter&gt;</div>
+      <div>&lt;/Card&gt;</div>
+    </div>
+    <div class="col" style="flex: 1;">
+      <p style="color: var(--muted); font-size: 0.8rem; letter-spacing: 1px;">RESULT:</p>
+      <div style="background: white; padding: 24px; border-radius: 12px; width: 260px;">
+        <p style="color: #1a1a2e; font-size: 1.1rem; font-weight: bold;">Quick Setup</p>
+        <p style="color: #666; font-size: 0.85rem; margin-top: 4px;">Built in 5 minutes</p>
+        <div style="background: #f5f5f5; border: 1px solid #ddd; padding: 10px; border-radius: 6px; margin: 16px 0; color: #999; font-size: 0.9rem;">Email</div>
+        <div style="background: #1a1a2e; color: white; padding: 10px; border-radius: 6px; text-align: center;">Subscribe</div>
+      </div>
+      <div class="highlight">
+        <h4>Pro tip</h4>
+        <p>Browse ui.shadcn.com for examples. Copy, paste, customize. Don't reinvent the wheel.</p>
+      </div>
+    </div>
+  </div>
+  <div style="background: var(--surface); padding: 10px 16px; border-radius: 4px; margin-top: 20px; display: inline-block;">
+    <code style="color: var(--cyan);">npx shadcn@latest add card input button</code>
+    <span style="color: var(--muted); margin-left: 16px;">← One command, production-ready components</span>
+  </div>
+  <div class="footer">Rapid Development with React</div>
+</div>
+
+<!-- Slide 10: Practice Time -->
+<div class="slide challenge-slide">
+  <div class="gradient-bar"></div>
+  <div class="tag">HANDS-ON EXERCISE</div>
+  <h1>LET'S BUILD</h1>
+  <p class="subtitle">Apply these patterns to a real feature</p>
+  <div class="stat-boxes">
+    <div class="stat-box"><div class="num cyan">30</div><div class="label">MINUTES</div></div>
+    <div class="stat-box"><div class="num pink">1</div><div class="label">FEATURE</div></div>
+    <div class="stat-box"><div class="num">∞</div><div class="label">POSSIBILITIES</div></div>
+  </div>
+  <div class="dashed-box">Use the starter template + patterns from this workshop</div>
+</div>
+
+<!-- Slide 11: Key Takeaways -->
+<div class="slide">
+  <h1>KEY TAKEAWAYS</h1>
+  <div class="content">
+    <div class="col" style="flex: 1; gap: 20px;">
+      <div class="point"><div class="icon cyan round">1</div><div><h4>Plan Before You Code</h4><p>5 minutes sketching components saves hours of refactoring</p></div></div>
+      <div class="point"><div class="icon cyan round">2</div><div><h4>Build Skeletons First</h4><p>Working structure with mock data beats half-finished features</p></div></div>
+      <div class="point"><div class="icon cyan round">3</div><div><h4>Use What Exists</h4><p>shadcn/ui, Tailwind, and libraries are force multipliers</p></div></div>
+      <div class="point"><div class="icon round" style="background: var(--pink);">4</div><div><h4>Start Simple</h4><p>useState handles most cases. Add complexity only when needed.</p></div></div>
+    </div>
+    <div class="quote-box">
+      <blockquote>"Make it work, make it right, make it fast"</blockquote>
+      <div class="divider"></div>
+      <p>In that order. Speed comes from simplicity and good tools.</p>
+    </div>
+  </div>
+  <div class="footer">Rapid Development with React</div>
+</div>
+
+<!-- Slide 12: Resources -->
+<div class="slide">
+  <h1>RESOURCES</h1>
+  <div class="content">
+    <div class="col" style="width: 400px;">
+      <p style="color: var(--muted); font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px;">ESSENTIAL LINKS</p>
+      <div class="resource"><h4>Vite</h4><code>vitejs.dev</code></div>
+      <div class="resource"><h4>shadcn/ui</h4><code>ui.shadcn.com</code></div>
+      <div class="resource"><h4>Tailwind CSS</h4><code>tailwindcss.com</code></div>
+      <div class="resource pink"><h4>Lucide Icons</h4><code>lucide.dev</code></div>
+      <div class="resource pink"><h4>React Hook Form</h4><code>react-hook-form.com</code></div>
+    </div>
+    <div class="col" style="flex: 1; justify-content: center; align-items: center;">
+      <div style="background: linear-gradient(135deg, var(--surface-dark) 0%, var(--surface) 100%); padding: 30px; border-radius: 12px; border: 2px solid var(--cyan); text-align: center;">
+        <h3 style="color: var(--cyan); font-size: 1.3rem;">Workshop Materials</h3>
+        <p style="margin-top: 16px;">📦 Starter Template</p>
+        <p style="margin-top: 8px;">📝 Exercise Prompt</p>
+        <p style="margin-top: 8px;">💡 Code Examples</p>
+      </div>
+      <div style="text-align: center; margin-top: 30px;">
+        <h2 style="font-size: 1.8rem;">Happy Building! 🚀</h2>
+        <p style="color: var(--muted); margin-top: 8px;">Questions? Let's discuss!</p>
+      </div>
+    </div>
+  </div>
+  <div class="footer">Rapid Development with React</div>
+</div>
+
+<!-- Navigation -->
+<div class="nav">
+  <button onclick="prevSlide()">← Prev</button>
+  <button onclick="nextSlide()">Next →</button>
+</div>
+
+<div class="slide-counter">
+  <span id="current">1</span> / <span id="total">12</span>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  let currentSlide = 0;
+  
+  function showSlide(n) {
+    slides[currentSlide].classList.remove('active');
+    currentSlide = (n + slides.length) % slides.length;
+    slides[currentSlide].classList.add('active');
+    document.getElementById('current').textContent = currentSlide + 1;
+  }
+  
+  function nextSlide() { showSlide(currentSlide + 1); }
+  function prevSlide() { showSlide(currentSlide - 1); }
+  
+  document.getElementById('total').textContent = slides.length;
+  
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+  });
+</script>
+
+</body>
+</html>
